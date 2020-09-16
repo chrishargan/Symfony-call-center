@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="assets/customerStyle.css">{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+
+    <div class="example-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+            <a class="navbar-brand" href="{{ path('homepage') }}"><img class="nav-logo" src="img/symfony_black.png" alt="Symfony logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ path('homepage') }}">Home</a>
+                    </li>
+                    {% if isManager %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('manager_dash') }}">Dashboard</a>
+                        </li>
+                    {% elseif isAgent %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('agent_home') }}">Workplace</a>
+                        </li>
+                    {% elseif isCustomer %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('customer_home') }}">Your Tickets</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        {% if app.user %}
+                            <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        {# <nav class="navbar fixed-top navbar-dark bg-primary"> #}
+        {# {% if isManager %} #}
+        {# <a class="navbar-brand" href="{{ path('manager_dash') }}">Dashboard</a> #}
+        {# {% elseif isAgent %} #}
+        {# <a class="navbar-brand" href="{{ path('agent_home') }}">Workplace</a> #}
+        {# {% elseif isCustomer %} #}
+        {# <a class="navbar-brand" href="{{ path('customer_home') }}">Ticket Overview</a> #}
+        {# {% else %} #}
+        {# <a class="navbar-brand ml-auto" href="{{ path('app_login') }}">Login</a> #}
+        {# <a class="navbar-brand" href="{{path('app_register')}}">Register</a> #}
+        {# {% endif %} #}
+        {# {% if app.user %} #}
+        {# <a class="navbar-brand ml-auto"  href="{{ path('app_logout') }}">Logout</a> #}
+        {# {% endif %} #}
+        {# </nav> #}
+
+        {% if app.user %}
+            <div class="my-5 pt-5">
+                <h1>
+                    Welcome. You are logged in as {{ app.user.username }}.
+                </h1>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

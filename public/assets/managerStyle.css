@@ -1,0 +1,24 @@
+@font-face {
+    font-family: Phenomena;
+    src: url("Phenomena-Regular.otf");
+}
+@font-face {
+    font-family: ekmukta;
+    src: url("ekmukta-regular.ttf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: ekmukta;
+}
+
+.table {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+a {
+    color: #010cc6;
+}

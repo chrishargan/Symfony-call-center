@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit ticket{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('assets/customerStyle.css') }}">{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+    <div class="example-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+            <a class="navbar-brand" href="#"><img class="nav-logo" src="{{ asset('img/symfony_black.png') }}"
+                                                  alt="Symfony logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ path('homepage') }}">Home <span
+                                    class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ path('agent_home') }}">Workplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">All open tickets</h1>
+        <div>
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        <table class="table" style="width: 80vw">
+            <thead class="thead-dark">
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Created Date</th>
+                <th>Updated Date</th>
+                <th>Escalated</th>
+                <th>Close Reason</th>
+                <th>Priority</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                {% if ticket.status == open %}
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.title|capitalize }}</td>
+                        <td>{{ ticket.createdDate ? ticket.createdDate|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ ticket.updatedDate ? ticket.updatedDate|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ ticket.isEscalated ? 'Yes' : 'No' }}</td>
+                        <td>{{ ticket.closeReason }}</td>
+                        <td>
+                            {% if ticket.priority == high_priority %}
+                                High
+                            {% elseif ticket.priority == medium_priority %}
+                                Medium
+                            {% else %}
+                                Low
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{{ path('agent_addTodo') }}">
+                                <input type="hidden" name="addToDo" value="{{ ticket.id }}">
+                                <button type="submit" class="btn btn-info" style="width: 7rem">Add to ToDo</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% else %}
+                <tr>
+                    <td colspan="10">No records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">To do list</h1>
+        <table class="table" style="width: 80vw">
+            <thead class="thead-dark">
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Updated Date</th>
+                <th>Escalated</th>
+                <th>Close Reason</th>
+                <th>Priority</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                {% if ticket.agent is same as(agent) and ticket.status != close %}
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.title|capitalize }}</td>
+                        <td>
+                            {% if ticket.status == open %}
+                                Open
+                            {% elseif ticket.status == in_progress %}
+                                In progress
+                            {% elseif ticket.status == waiting_feedback %}
+                                Waiting for customer feedback
+                            {% else %}
+                                Close
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.createdDate ? ticket.createdDate|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ ticket.updatedDate ? ticket.updatedDate|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ ticket.isEscalated ? 'Yes' : 'No' }}</td>
+                        <td>{{ ticket.closeReason }}</td>
+                        <td>
+                            {% if ticket.priority == high_priority %}
+                                High
+                            {% elseif ticket.priority == medium_priority %}
+                                Medium
+                            {% else %}
+                                Low
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-info" style="width: 7rem" href="{{ path('agent_ticket', {'id': ticket.id}) }}">View details</a>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% else %}
+                <tr>
+                    <td colspan="9">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

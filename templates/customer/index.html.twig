@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Your Tickets{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="assets/customerStyle.css">{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+    {% block header %}
+        <div class="example-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+                <a class="navbar-brand" href="#"><img class="nav-logo" src="img/symfony_black.png"
+                                                      alt="Symfony logo"></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item ">
+                            <a class="nav-link" href="{{ path('homepage') }}">Home <span
+                                        class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{ path('customer_home') }}">Your Tickets</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    {% endblock %}
+
+    <div class="rounded">
+        <h1 class="h1 my-5 font-weight-normal text-center">Your Tickets</h1>
+
+        <hr class="w-50 mx-auto">
+        <div class="border border-info p-2 mx-auto mb-3 w-25 d-flex rounded">
+            <a class="btn btn-primary w-100" href="{{ path('ticket_new') }}"> New Ticket</a>
+        </div>
+
+        <table class="table table-hover rounded">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Updated Date</th>
+                <th>Close Reason</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+            <tbody class="table table-hover">
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.title|capitalize }}</td>
+                    <td>
+                        {% if ticket.status == open %}
+                            Open
+                        {% elseif ticket.status == in_progress %}
+                            In progress
+                        {% elseif ticket.status == waiting_feedback %}
+                            Waiting for customer feedback
+                        {% else %}
+                            Close
+                        {% endif %}
+                    </td>
+                    <td>{{ ticket.createdDate ? ticket.createdDate|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ ticket.updatedDate ? ticket.updatedDate|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ ticket.closeReason }}</td>
+                    <td>
+                        <button class="btn btn-info">
+                            <a href="{{ path('customer_tickets', {'id': ticket.id}) }}">Message History</a>
+                        </button>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7">No records found</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+
+
+{% endblock %}

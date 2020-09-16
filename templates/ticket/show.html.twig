@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ticket{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/customerStyle.css') }}">
+{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+    <div class="example-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+            <a class="navbar-brand" href="{{ path('homepage') }}"><img class="nav-logo" src="/img/symfony_black.png"
+                                                                       alt="Symfony logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('homepage') }}">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('manager_dash') }}">Dashboard</a>
+                    </li>
+
+                    <li class="nav-item">
+                        {% if app.user %}
+                            <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">Ticket</h1>
+        <hr class="w-50 mx-auto">
+
+        {# If there's an error, it will be display here #}
+        <div>
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <table class="table table-hover rounded table-sm summary border border-primary" style="min-width: 60vw">
+            <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ ticket.title }}</td>
+            </tr>
+            <tr>
+                <th>Content</th>
+                <td>{{ ticket.content }}</td>
+            </tr>
+            <tr>
+                <th>Customer</th>
+                <td>{{ ticket.customer }}</td>
+            </tr>
+            <tr>
+                <th>Agent</th>
+                <td>{{ ticket.agent }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ ticket.status }}</td>
+            </tr>
+            <tr>
+                <th>Created Date</th>
+                <td>{{ ticket.createdDate ? ticket.createdDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Updated Date</th>
+                <td>{{ ticket.updatedDate ? ticket.updatedDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Escalated</th>
+                <td>{{ ticket.isEscalated ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Close Reason</th>
+                <td>{{ ticket.closeReason }}</td>
+            </tr>
+            <tr>
+                <th>Priority</th>
+                <td>
+                    {% if ticket.priority == high_priority %}
+                        High
+                    {% elseif ticket.priority == medium_priority %}
+                        Medium
+                    {% else %}
+                        Low
+                    {% endif %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">Edit tickets</h1>
+        <hr class="w-50 mx-auto">
+
+        {% if ticket.status != close %}
+            <div class="card bg-light mb-3 p-4 border border-primary" style="width: 60rem;">
+                <h2 class="my-5 font-weight-normal text-center">Reassign Agent</h2>
+                <form method="post" action="{{ path('reassign_agent') }}" class="text-center">
+                    <input type="hidden" name="ticketId" value="{{ ticket.id }}">
+                    <label>
+                        <select name="reassignAgent">
+                            {% for agent in agents %}
+                                <option value="{{ agent.id }}">{{ agent.email }}</option>
+                            {% else %}
+                                No agent found.
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button class="btn btn-info" type="submit">Reassign Agent</button>
+                </form>
+            </div>
+
+            <div class="card bg-light mb-3 p-4 border border-primary" style="width: 60rem;">
+                <h2 class="my-5 font-weight-normal text-center">Set Priority</h2>
+                <form method="post" action="{{ path('set_priority') }}" class="text-center">
+                    <input type="hidden" name="ticketId" value="{{ ticket.id }}">
+                    <label>
+                        <select name="setPriority">
+                            <option value="{{ high_priority }}">High</option>
+                            <option value="{{ medium_priority }}">Medium</option>
+                            <option value="{{ low_priority }}">Low</option>
+                        </select>
+                    </label>
+                    <button class="btn btn-info" type="submit">Set Priority</button>
+                </form>
+            </div>
+
+            <div class="card bg-light mb-3 p-4 border border-primary" style="width: 60rem;">
+                <h2 class="my-5 font-weight-normal text-center">Permanently close</h2>
+                <form class="d-flex flex-column" action="{{ path('set_wont_fix') }}" method="post">
+                    <input class="form-text" type="hidden" name="ticketId" value="{{ ticket.id }}">
+                    <label class="mb-0">
+                            <textarea class="form-control" name="closeReason" placeholder="Reason" cols="30" rows="10"
+                                      required></textarea>
+                    </label>
+                    <button class="btn btn-danger mt-3" type="submit">Won't Fix</button>
+                </form>
+            </div>
+        {% endif %}
+    </section>
+
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">Message history</h1>
+        <div class="mb-4">
+            {% for comment in ticket.comments %}
+                <div class="mb-3">
+                    <div class="card" style="width: 60vw;">
+                        <div class="card-body">
+                            <h5 class="card-title font-weight-bold text-center border-bottom">
+                                Title: {{ comment.title|capitalize }}</h5>
+                            {% if comment.isPrivate %}
+                                <div class="alert alert-warning text-center" role="alert">
+                                    This comment is private!
+                                </div>
+                            {% endif %}
+                            <p class="card-text lead">Written by: {{ comment.user }}</p>
+                            <p class="card-text">Content: {{ comment.content }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card bg-light mb-3 p-1 border border-primary" style="width: 60rem;">
+                    <p class="card-text text-center">No Message history so far</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/customerStyle.css') }}">{% endblock %}
+
+{% block title %}Message History{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+    {% block header %}
+        <div class="example-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+                <a class="navbar-brand" href="#"><img class="nav-logo" src="{{ asset('img/symfony_black.png') }}"
+                                                      alt="Symfony logo"></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item ">
+                            <a class="nav-link" href="{{ path('homepage') }}">Home <span
+                                        class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="{{ path('customer_home') }}">Your Tickets</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{ path('customer_tickets', {'id': ticket.id}) }}">Ticket
+                                Information</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    {% endblock %}
+    <h1 class="h1 my-5 font-weight-normal text-center">Ticket Details</h1>
+    <hr class="w-50 mx-auto">
+    <div>
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% if ticket.status == close %}
+        <div class="border border-info p-2 mx-auto mb-3 d-flex rounded">
+            <form method="post" action="{{ path('customer_ticket_reopen', { 'id': ticket.id }) }}" class="w-100">
+                <input type="hidden" name="reOpen" value="{{ ticket.id }}">
+                <button type="submit" class="btn btn-primary ">Re-open Case</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <table class="table table-hover rounded table-sm summary border border-primary" style="min-width: 60vw">
+        <tbody>
+        <tr>
+            <th>Id</th>
+            <td>{{ ticket.id }}</td>
+        </tr>
+        <tr>
+            <th>Title</th>
+            <td>{{ ticket.title|capitalize }}</td>
+        </tr>
+        <tr>
+            <th>Content</th>
+            <td>{{ ticket.content }}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>
+                {% if ticket.status == open %}
+                    Open
+                {% elseif ticket.status == in_progress %}
+                    In progress
+                {% elseif ticket.status == waiting_feedback %}
+                    Waiting for customer feedback
+                {% else %}
+                    Close
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Created Date</th>
+            <td>{{ ticket.createdDate ? ticket.createdDate|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Updated Date</th>
+            <td>{{ ticket.updatedDate ? ticket.updatedDate|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Escalated</th>
+            <td>{{ ticket.isEscalated ? 'Yes' : 'No' }}</td>
+        </tr>
+        <tr>
+            <th>Close Reason</th>
+            <td>{{ ticket.closeReason }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h1 class="h1 my-5 font-weight-normal text-center">Message History</h1>
+    <div class="mb-4">
+        {% for comment in ticket.comments %}
+            {% if not comment.isPrivate %}
+                <div class="mb-3">
+                    <div class="card" style="width: 60vw;">
+                        <div class="card-body">
+                            <h5 class="card-title font-weight-bold text-center border-bottom">
+                                Title: {{ comment.title|capitalize }}</h5>
+                            <p class="card-text lead">Written by: {{ comment.user }}</p>
+                            <p class="card-text">Content: {{ comment.content }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="card bg-light mb-3 p-1 border border-primary" style="width: 60rem;">
+                <p class="card-text text-center">No Message history so far</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if ticket.status != close %}
+        <h1 class="h1 my-5 font-weight-normal text-center">Add New Comments</h1>
+        <div class="card bg-light mb-3 p-4 border border-primary" style="width: 60rem;">
+            {{ form_start(form) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.content) }}
+            <button type="submit" class="btn btn-primary mt-3 w-100">Add Comment</button>
+            {{ form_end(form) }}
+        </div>
+    {% endif %}
+{% endblock %}

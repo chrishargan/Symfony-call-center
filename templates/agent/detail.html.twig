@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit ticket{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('assets/customerStyle.css') }}">{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+    <div class="example-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+            <a class="navbar-brand" href="#"><img class="nav-logo" src="{{ asset('img/symfony_black.png') }}"
+                                                  alt="Symfony logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ path('homepage') }}">Home <span
+                                    class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{{ path('agent_home') }}">Workplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">Ticket Details</h1>
+        <hr class="w-50 mx-auto">
+
+        {# If there's an error, it will be display here #}
+        <div>
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if ticket.status != close %}
+            <div class="d-flex">
+                <div class="border border-info p-2 mx-auto mb-3 d-flex rounded">
+                    <form method="post" action="{{ path('agent_ticket_close', {'id': ticket.id }) }}" class="w-100">
+                        <input type="hidden" name="closeTicket" value="{{ ticket.id }}">
+                        <button type="submit" class="btn btn-primary w-100">Close this ticket</button>
+                    </form>
+                </div>
+                {# Only first line agent can escalate a ticket #}
+                {% if not agent.isSecondLine %}
+                    <div class="border border-info p-2 mx-auto mb-3 d-flex rounded">
+                        <form method="post" action="{{ path('agent_ticket_escalate', {'id' : ticket.id }) }}" class="w-100">
+                            <input type="hidden" name="escalateTicket" value="{{ ticket.id }}">
+                            <button type="submit" class="btn btn-primary w-100">Escalate this ticket</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {# Table containing information of the current ticket #}
+        <div class="table">
+            <table class="table table-hover" style="width: 60vw">
+                <thead>
+                <tr>
+                    <th scope="row">Id</th>
+                    <th>{{ ticket.id }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">Title</th>
+                    <td>{{ ticket.title|capitalize }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Content</th>
+                    <td>{{ ticket.content }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Status</th>
+                    <td>
+                        {% if ticket.status == open %}
+                            Open
+                        {% elseif ticket.status == in_progress %}
+                            In progress
+                        {% elseif ticket.status == waiting_feedback %}
+                            Waiting for customer feedback
+                        {% else %}
+                            Close
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Created Date</th>
+                    <td>{{ ticket.createdDate ? ticket.createdDate|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Updated Date</th>
+                    <td>{{ ticket.updatedDate ? ticket.updatedDate|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Escalated</th>
+                    <td>{{ ticket.isEscalated ? 'Yes' : 'No' }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Close Reason</th>
+                    <td>{{ ticket.closeReason }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Priority</th>
+                    <td>
+                        {% if ticket.priority == high_priority %}
+                            High
+                        {% elseif ticket.priority == medium_priority %}
+                            Medium
+                        {% else %}
+                            Low
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+
+    {# All comments of the current tickets #}
+    <section>
+        <h1 class="h1 my-5 font-weight-normal text-center">Message History</h1>
+
+
+        {% for comment in ticket.comments %}
+            <div class="mb-3">
+                <div class="card" style="width: 60vw;">
+                    <div class="card-body">
+                        <h5 class="card-title font-weight-bold text-center border-bottom">
+                            Title: {{ comment.title|capitalize }}</h5>
+                        {% if comment.isPrivate %}
+                            <div class="alert alert-warning text-center" role="alert">
+                                This comment is private!
+                            </div>
+                        {% endif %}
+                        <p class="card-text lead">Written by: {{ comment.user }}</p>
+                        <p class="card-text">Content: {{ comment.content }}</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card bg-light mb-3 p-1 border border-primary" style="width: 60rem;">
+                <p class="card-text text-center">No Message history so far</p>
+            </div>
+        {% endfor %}
+    </section>
+
+    {# If a ticket is not closed, show the form to add comment and button to close/escalate #}
+    {% if ticket.status != close %}
+        <section>
+            <h1 class="h1 my-5 font-weight-normal text-center">Add New Comment</h1>
+            <div class="card bg-light mb-3 p-4 border border-primary" style="width: 60rem;">
+                {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <button type="submit" class="btn btn-primary w-100">Add Comment</button>
+                {{ form_end(form) }}
+            </div>
+
+        </section>
+    {% endif %}
+{% endblock %}
