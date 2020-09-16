@@ -29,7 +29,7 @@ Maybe sometimes the farmer sells the products directly to some customers, in whi
 
 ![Tomato](tomato.jpg)
 
-## features 
+## Features 
 
 We have 5 different users in our system that have different abilities:
 
