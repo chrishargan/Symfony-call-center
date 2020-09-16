@@ -12,22 +12,8 @@ After learning to produce CRUD applications, where the main focus is on storing 
 
 Another big part of development is workflow implementation to automate processes in the real world. Any time you have a status field (for example is an invoice paid? Is a product delivered?) you probably have a workflow before you.
 
-### A story about a tomato
-Think about a physical product like a tomato in a grocery store, this tomato lives an entire journey:
 
-- The tomato is harvested on the farm
-- The tomato is shipped with a truck to a store
-- Their the tomato is weighted and gets a price. Extra information about the tomato is now available.
-- Maybe the store keeps a ledger of the total amount of tomatoes in their store - they have to update this information.
-- The tomato is sold - nothing more can be done with it.
-- The ledger amount of tomatoes is lowered again.
-- Maybe if the amount becomes too low a new shipment of tomatoes is ordered.
-
-Also interesting to note is that there can be several endings or routes the tomato can travel. Maybe at any time in the flow somebody can say that the tomato has fungus on it - taking it out of the market and flow.
-
-Maybe sometimes the farmer sells the products directly to some customers, in which case we can skip the transportation step.
-
-![Tomato](tomato.jpg)
+<img src="public/img/manager-dashboard.png">
 
 ## Features 
 
